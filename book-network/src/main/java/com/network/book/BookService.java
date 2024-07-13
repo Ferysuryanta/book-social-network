@@ -12,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.network.book.BookSpecification.withOwnerId;
@@ -155,5 +154,40 @@ public class BookService {
                 .returnedApproved(false)
                 .build();
         return historyRepository.save(transactionBookHistory).getId();
+    }
+
+    public Integer returnedBorrowBooks(Integer bookId, Authentication connectedUser) {
+        var book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No found with ID:: " + bookId));
+        if (book.isArchived() || !book.isShareable()) {
+            throw new OperationNotPermittedException("Book cannot be borrowed since archived or not shareable");
+        }
+
+        var user = ((User) connectedUser.getPrincipal());
+        if (Objects.equals(book.getOwner().getId(), user.getId())) {
+            throw new OperationNotPermittedException("You cannot borrow or return your own book");
+        }
+
+        var bookTransactionHistory = historyRepository.findByBookIdAndUserId(bookId, user.getId())
+                .orElseThrow(() -> new OperationNotPermittedException("You did not borrow this book"));
+
+        bookTransactionHistory.setReturned(true);
+        return historyRepository.save(bookTransactionHistory).getId();
+    }
+
+    public Integer approveReturnBooks(Integer bookId, Authentication connectedUser) {
+        var book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No found with ID:: " + bookId));
+        if (book.isArchived() || !book.isShareable()) {
+            throw new OperationNotPermittedException("Book cannot be borrowed since archived or not shareable");
+        }
+        var user = ((User) connectedUser.getPrincipal());
+        if (Objects.equals(book.getOwner().getId(), user.getId())) {
+            throw new OperationNotPermittedException("You cannot borrow or return your own book");
+        }
+        var bookTransactionHistory = historyRepository.findByBookIdAndOwnerId(bookId, user.getId())
+                .orElseThrow(() -> new OperationNotPermittedException("The book is not returned yet. You cannot approve its return"));
+        bookTransactionHistory.setReturnedApproved(true);
+        return historyRepository.save(bookTransactionHistory).getId();
     }
 }
