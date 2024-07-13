@@ -1,6 +1,7 @@
 package com.network.book;
 
 import com.network.common.PageResponse;
+import com.network.exception.OperationNotPermittedException;
 import com.network.history.BookTransactionHistoryRepository;
 import com.network.user.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.network.book.BookSpecification.withOwnerId;
 
@@ -86,5 +88,35 @@ public class BookService {
                 bookTransactionHistories.isFirst(),
                 bookTransactionHistories.isLast()
         );
+    }
+    public PageResponse<BorrowedBookResponse> findAllReturnedBooks(int page, int size, Authentication connectedUser) {
+        var user = ((User) connectedUser.getPrincipal());
+        var pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        var returnedBook = historyRepository.findAllReturnedBooks(pageable, user.getId());
+        var returnedBookResponse = returnedBook.stream()
+                .map(bookMapper::toBorrowedBookResponse)
+                .toList();
+        return new PageResponse<>(
+                returnedBookResponse,
+                returnedBook.getNumber(),
+                returnedBook.getSize(),
+                returnedBook.getTotalElements(),
+                returnedBook.getTotalPages(),
+                returnedBook.isFirst(),
+                returnedBook.isLast()
+        );
+    }
+
+    public Integer updateShareAbleStatus(Integer bookId, Authentication connectedUser) {
+        var book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No book found with ID:: " + bookId));
+        var user = (User) connectedUser.getPrincipal();
+        if (!Objects.equals(book.getOwner().getBook(), user.getId())) {
+            // throw an exception
+            throw new OperationNotPermittedException("You cannot update books shareable status");
+        }
+        book.setShareable(!book.isShareable());
+        bookRepository.save(book);
+        return bookId;
     }
 }
