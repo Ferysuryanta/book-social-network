@@ -1,5 +1,6 @@
 package com.network.book;
 
+import com.network.history.BookTransactionHistory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,6 +29,18 @@ public class BookMapper {
                 .shareable(book.isShareable())
                 .owner(book.getOwner().getFullName())
 //                .cover()
+                .build();
+    }
+
+    public BorrowedBookResponse toBorrowedBookResponse(BookTransactionHistory transactionHistory) {
+        return BorrowedBookResponse.builder()
+                .id(transactionHistory.getBook().getId())
+                .title(transactionHistory.getBook().getTitle())
+                .authorName(transactionHistory.getBook().getAuthorName())
+                .isbn(transactionHistory.getBook().getIsbn())
+                .rate(transactionHistory.getBook().getRate())
+                .returned(transactionHistory.isReturned())
+                .returnedApprove(transactionHistory.isReturnedApproved())
                 .build();
     }
 }
