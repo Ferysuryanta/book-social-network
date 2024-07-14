@@ -2,6 +2,7 @@ package com.network.book;
 
 import com.network.common.PageResponse;
 import com.network.exception.OperationNotPermittedException;
+import com.network.file.FileStorageService;
 import com.network.history.BookTransactionHistory;
 import com.network.history.BookTransactionHistoryRepository;
 import com.network.user.User;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -23,6 +25,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookTransactionHistoryRepository historyRepository;
     private final BookMapper bookMapper;
+    private final FileStorageService fileStorageService;
     public Integer save(BookRequest bookRequest, Authentication connectedUser) {
         var user = ((User) connectedUser.getPrincipal());
         var book = bookMapper.toBook(bookRequest);
@@ -189,5 +192,14 @@ public class BookService {
                 .orElseThrow(() -> new OperationNotPermittedException("The book is not returned yet. You cannot approve its return"));
         bookTransactionHistory.setReturnedApproved(true);
         return historyRepository.save(bookTransactionHistory).getId();
+    }
+
+    public void uploadBookCoverPicture(Integer bookId, Authentication connectedUser, MultipartFile file) {
+        var book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No found with ID:: " + bookId));
+        var user = ((User) connectedUser.getPrincipal());
+        var bookCover = fileStorageService.saveFile(file, user.getId());
+        book.setBookCover(bookCover);
+        bookRepository.save(book);
     }
 }
