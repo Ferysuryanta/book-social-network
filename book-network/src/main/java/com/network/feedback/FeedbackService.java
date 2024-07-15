@@ -1,6 +1,5 @@
 package com.network.feedback;
 
-import com.network.book.Book;
 import com.network.book.BookRepository;
 import com.network.common.PageResponse;
 import com.network.exception.OperationNotPermittedException;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
