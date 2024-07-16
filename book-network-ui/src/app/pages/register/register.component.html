@@ -1,4 +1,4 @@
-<div class="container-fluid card register-container">
+<div class="container-fluid card login-container">
   <h3 class="text-center">Create an account</h3>
   <hr>
   <div class="alert alert-danger" role="alert" *ngIf="errorMsg.length">
@@ -6,11 +6,11 @@
   </div>
   <div class="mb-3">
     <label for="firstname" class="form-label">Firstname</label>
-    <input [(ngModel)]="registerRequest.firstname"  type="text" class="form-control" id="firstname" placeholder="Firstname">
+    <input [(ngModel)]="registerRequest.firstname"  type="text" class="form-control" id="firstname" placeholder="John">
   </div>
   <div class="mb-3">
     <label for="lastname" class="form-label">Lastname</label>
-    <input [(ngModel)]="registerRequest.lastname" type="text" class="form-control" id="lastname" placeholder="Lastname">
+    <input [(ngModel)]="registerRequest.lastname" type="text" class="form-control" id="lastname" placeholder="Doe">
   </div>
   <div class="mb-3">
     <label for="login" class="form-label">Email address</label>
@@ -18,11 +18,11 @@
   </div>
   <div class="mb-3">
     <label for="password" class="form-label">Password</label>
-    <input [(ngModel)]="registerRequest.password" type="password" class="form-control" id="password" placeholder="Password">
+    <input [(ngModel)]="registerRequest.password" type="password" class="form-control" id="password" placeholder="password">
   </div>
   <div class="d-flex justify-content-between mb-3">
     <button (click)="register()" type="button" class="btn btn-primary">
-      <em class="fas fa-sign-in-alt">&nbsp;Sign in</em>
+      <em class="fas fa-sign-in-alt"> Create an account</em>
     </button>
     <div>
       Already have an account?
