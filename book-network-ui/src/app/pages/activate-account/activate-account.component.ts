@@ -30,6 +30,7 @@ export class ActivateAccountComponent {
       next: () => {
         this.message = 'Your account has been successfully activated.\nNow you can proceed to Login';
         this.submitted = true;
+        // this.isOkay = true;
       },
       error: (err) => {
         console.log(err.message);
